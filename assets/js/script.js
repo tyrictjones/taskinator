@@ -1,3 +1,5 @@
+var pageContentEl = document.querySelector('#page-content');
+
 var taskIdCounter = 0;
 
 var formEl = document.querySelector('#task-form'); //select entire top form as an object
@@ -97,3 +99,18 @@ var createTaskActions = function(taskId) {
 };
 
 formEl.addEventListener('submit', taskFormHandler);
+
+var taskButtonHandler = function(event) {
+    if (event.target.matches('.delete-btn')) {
+        //get the element's task ID if there is a match
+        var taskId = event.target.getAttribute('data-task-id');
+        deleteTask(taskId);
+    }
+};
+
+var deleteTask = function(taskId) {
+    var taskSelected = document.querySelector('.task-item[data-task-id="' + taskId + '"]'); //not having a space between the two attributes ensure we choose the element that has both, not a .data-task-id inside a .task-item
+    taskSelected.remove();
+};
+
+pageContentEl.addEventListener('click', taskButtonHandler);
