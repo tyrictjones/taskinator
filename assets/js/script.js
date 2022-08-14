@@ -1,3 +1,4 @@
+//GLOBAL VARIABLES ---------------------------------------------
 var pageContentEl = document.querySelector('#page-content');
 
 var taskIdCounter = 0;
@@ -9,7 +10,9 @@ var tasksCompletedEl = document.querySelector('#tasks-completed');
 
 var tasks = [];
 
+//FUNCTIONS -----------------------------------------------------
 
+//function to handle top form inputs and clicks; send that input to create a new task box
 var taskFormHandler = function() {
 
     event.preventDefault(); //prevent default behaviour of page automatically refreshind and erasing the new list item
@@ -41,12 +44,13 @@ var taskFormHandler = function() {
     createTaskEl(taskDataObj);
     }
    
-
     formEl.reset();
     
 }; //end of function to create add new item list on enter or submit button click
 
 
+
+//function that creates the actual task box (a div inside an li)
 var createTaskEl = function(taskDataObj) {
     //create list item
     var listItemEl = document.createElement('li');
@@ -66,6 +70,7 @@ var createTaskEl = function(taskDataObj) {
 
     taskDataObj.id = taskIdCounter;
     tasks.push(taskDataObj);
+    saveTasks();
 
     var taskActionsEl = createTaskActions(taskIdCounter);
     listItemEl.appendChild(taskActionsEl);
@@ -75,8 +80,11 @@ var createTaskEl = function(taskDataObj) {
 
     //increase task counter for next unique id
     taskIdCounter++;
-}
+};
 
+
+
+//function that adds the buttons and status selector to the newly created task box
 var createTaskActions = function(taskId) {
     var actionContainerEl = document.createElement('div');
     actionContainerEl.className = 'task-actions';
@@ -116,8 +124,9 @@ var createTaskActions = function(taskId) {
     return actionContainerEl;
 };
 
-formEl.addEventListener('submit', taskFormHandler);
 
+
+//function that captures whether a delete or edit button was clicked and gets the associated task id
 var taskButtonHandler = function(event) {
     //get target element from event
     var targetEl = event.target;
@@ -136,6 +145,9 @@ var taskButtonHandler = function(event) {
     }
 };
 
+
+
+//edit task info
 var editTask = function(taskId) {
     //get task list item element
     var taskSelected = document.querySelector('.task-item[data-task-id="' + taskId + '"]');
@@ -149,9 +161,12 @@ var editTask = function(taskId) {
 
     document.querySelector('#save-task').textContent = 'Save Task';
 
-    formEl.setAttribute('data-task-id', taskId);
+    formEl.setAttribute('data-task-id', taskId); //this is so we know that the information re-populated into the top form has been edited
 };
 
+
+
+//delete task
 var deleteTask = function(taskId) {
     var taskSelected = document.querySelector('.task-item[data-task-id="' + taskId + '"]'); //not having a space between the two attributes ensure we choose the element that has both, not a .data-task-id inside a .task-item
     taskSelected.remove();
@@ -168,8 +183,12 @@ var deleteTask = function(taskId) {
 
     //reassign tasks array to be the same as updatedTaskArr
     tasks = updatedTaskArr;
+    saveTasks();
 };
 
+
+
+//finish editing the task and reset the top form
 var completeEditTask = function(taskName, taskType, taskId) {
     //find the matching task list item
     var taskSelected = document.querySelector('.task-item[data-task-id="' + taskId + '"]');
@@ -185,6 +204,7 @@ var completeEditTask = function(taskName, taskType, taskId) {
             tasks[i].type = taskType;
         }
     }
+    saveTasks();
 
     window.alert('Task Updated');
 
@@ -193,6 +213,9 @@ var completeEditTask = function(taskName, taskType, taskId) {
     document.querySelector('#save-task').textContent = 'Add Task';
 };
 
+
+
+//capture whether a status option was clicked, which one it was, and update the attribute
 var taskStatusChangeHandler = function(event) {
     //get the task item id
     var taskId = event.target.getAttribute('data-task-id');
@@ -219,8 +242,19 @@ var taskStatusChangeHandler = function(event) {
             tasks[i].status = statusValue;
         }
     }
+    saveTasks();
     
 };
 
+
+
+//update the array we are using for localStorage any time it is changed
+var saveTasks = function() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+};
+
+
+//EVENT LISTENERS --------------------------------------------
+formEl.addEventListener('submit', taskFormHandler);
 pageContentEl.addEventListener('click', taskButtonHandler);
 pageContentEl.addEventListener('change', taskStatusChangeHandler);
